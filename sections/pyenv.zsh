@@ -25,9 +25,9 @@ spaceship_pyenv() {
   # Show pyenv python version only for Python-specific folders
   [[ -n "$PYENV_VERSION" || -f .python-version || -f requirements.txt || -f pyproject.toml || -n *.py(#qN^/) ]] || return
 
-  spaceship::exists pyenv || return # Do nothing if pyenv is not installed
+  # spaceship::exists pyenv || return # Do nothing if pyenv is not installed
 
-  local pyenv_status=${$(pyenv version-name 2>/dev/null)//:/ }
+  local pyenv_status=${$(python --version 2>&1 | awk '{print $2}')//:/ }
 
   spaceship::section \
     "$SPACESHIP_PYENV_COLOR" \
