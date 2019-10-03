@@ -27,9 +27,9 @@ spaceship_terraform() {
   spaceship::exists terraform || return
 
   # Show Terraform Workspaces when exists
-  [[ -f .terraform/environment ]] || return
+  [[ -f .terraform-version ]] || return
 
-  local terraform_workspace=$(<.terraform/environment)
+  local terraform_workspace=$(<.terraform-version)
   [[ -z $terraform_workspace ]] && return
 
   spaceship::section \
