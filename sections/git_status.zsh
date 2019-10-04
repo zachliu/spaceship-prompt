@@ -141,12 +141,12 @@ spaceship_git_status() {
 
   if [[ -n ${remote} ]] ; then
     ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l)
-    (( $ahead )) && gitstatus+=( "${c3}前+${ahead}${c2}" )
+    (( $ahead )) && gitstatus+=( "(${c3}前+${ahead}${c2})" )
 
     behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l)
-    (( $behind )) && gitstatus+=( "${c4}後-${behind}${c2}" )
+    (( $behind )) && gitstatus+=( "(${c4}後-${behind}${c2})" )
 
-    git_status="$git_status%F{172}(${(j:/:)gitstatus})"
+    git_status="$git_status%F{172}${(j:/:)gitstatus}"
   fi
 
   if [[ -n $git_status ]]; then
