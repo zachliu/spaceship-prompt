@@ -72,7 +72,9 @@ spaceship_git_status() {
 
   # Check for stashes
   if $(command git rev-parse --verify refs/stash >/dev/null 2>&1); then
-    git_status="$SPACESHIP_GIT_STATUS_STASHED$git_status"
+    local -a stashes
+    stashes=$(git stash list 2>/dev/null | wc -l)
+    git_status="$git_status%F{red}($SPACESHIP_GIT_STATUS_STASHED${stashes})"
   fi
 
   # Check for unmerged files
@@ -122,7 +124,7 @@ spaceship_git_status() {
   if [[ "$is_ahead" == true && "$is_behind" == true ]]; then
     git_status="$SPACESHIP_GIT_STATUS_DIVERGED$git_status"
   else
-    [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
+    # [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
     [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
   fi
 
