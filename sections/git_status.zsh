@@ -128,6 +128,27 @@ spaceship_git_status() {
     [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
   fi
 
+  # Show remote ref name and number of commits ahead-of or behind
+  local ahead behind remote
+  local -a gitstatus
+
+  # Are we ahead or behind a remote-tracking branch?
+  # One way to avoid having to explicitly do --set-upstream is to use the
+  # shorthand flag -u along with the very first git push as follows:
+  # $ git push -u origin local-branch
+  remote=${$(git rev-parse --verify ${branch}@{upstream} \
+    --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+
+  if [[ -n ${remote} ]] ; then
+    ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l)
+    (( $ahead )) && gitstatus+=( "${c3}前+${ahead}${c2}" )
+
+    behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l)
+    (( $behind )) && gitstatus+=( "${c4}後-${behind}${c2}" )
+
+    git_status="$git_status%F{172}(${(j:/:)gitstatus})"
+  fi
+
   if [[ -n $git_status ]]; then
     # Status prefixes are colorized
     spaceship::section \
