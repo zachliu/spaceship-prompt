@@ -48,6 +48,7 @@ spaceship_git_branch() {
     SPACESHIP_GIT_BRANCH_COLOR="red"
   fi
 
+  # Colors for the branch name
   local current_git_status="$(git status 2> /dev/null)"
   local current_branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
   local current_git_commit="$(git --no-pager diff --stat origin/${current_branch} 2>/dev/null)"
