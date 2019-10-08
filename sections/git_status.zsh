@@ -79,20 +79,20 @@ spaceship_git_status() {
 
   # Check for unmerged files
   if $(echo "$INDEX" | command grep '^U[UDA] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
+    git_status="$git_status$SPACESHIP_GIT_STATUS_UNMERGED"
   elif $(echo "$INDEX" | command grep '^AA ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
+    git_status="$git_status$SPACESHIP_GIT_STATUS_UNMERGED"
   elif $(echo "$INDEX" | command grep '^DD ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
+    git_status="$git_status$SPACESHIP_GIT_STATUS_UNMERGED"
   elif $(echo "$INDEX" | command grep '^[DA]U ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
+    git_status="$git_status$SPACESHIP_GIT_STATUS_UNMERGED"
   fi
 
   # Show unpushed commits
   local current_git_status="$(git status 2> /dev/null)"
   local branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
   local git_diff_origin="$(git --no-pager diff --stat origin/${branch} 2>/dev/null)"
-  local git_unpushed_commit="$(git log --branches --not --remotes 2>/dev/null)"
+  local git_unpushed_commit="$(git log ${branch} --not --remotes 2>/dev/null)"
   # Making sure "推" is NOT displayed if i haven't committed yet
   # but if I partically committed, still need to show "推"
   if [[ -n $git_unpushed_commit ]]; then
