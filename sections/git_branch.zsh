@@ -19,7 +19,8 @@ SPACESHIP_GIT_BRANCH_COLOR="${SPACESHIP_GIT_BRANCH_COLOR="green"}"
 spaceship_git_branch() {
   [[ $SPACESHIP_GIT_BRANCH_SHOW == false ]] && return
 
-  local git_current_branch="$vcs_info_msg_0_"
+  VCS_NO_LEAD_SPACE="$(echo -e "${vcs_info_msg_0_}" | sed -e 's/^[[:space:]]*//')"
+  local git_current_branch="$VCS_NO_LEAD_SPACE"
   [[ -z "$git_current_branch" ]] && return
 
   spaceship::is_git || return
@@ -45,6 +46,17 @@ spaceship_git_branch() {
   if $(echo "$INDEX" | command grep '^[MARCDU ]D ' &> /dev/null); then
     SPACESHIP_GIT_BRANCH_COLOR="red"
   elif $(echo "$INDEX" | command grep '^D[ UM] ' &> /dev/null); then
+    SPACESHIP_GIT_BRANCH_COLOR="red"
+  fi
+
+  # Check for unmerged files
+  if $(echo "$INDEX" | command grep '^U[UDA] ' &> /dev/null); then
+    SPACESHIP_GIT_BRANCH_COLOR="red"
+  elif $(echo "$INDEX" | command grep '^AA ' &> /dev/null); then
+    SPACESHIP_GIT_BRANCH_COLOR="red"
+  elif $(echo "$INDEX" | command grep '^DD ' &> /dev/null); then
+    SPACESHIP_GIT_BRANCH_COLOR="red"
+  elif $(echo "$INDEX" | command grep '^[DA]U ' &> /dev/null); then
     SPACESHIP_GIT_BRANCH_COLOR="red"
   fi
 
