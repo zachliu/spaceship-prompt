@@ -125,7 +125,8 @@ spaceship_git_status() {
     git_status="$SPACESHIP_GIT_STATUS_DIVERGED$git_status"
   else
     # [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
-    [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
+    # [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
+    # do nothing
   fi
 
   # Show remote ref name and number of commits ahead-of or behind
