@@ -100,26 +100,6 @@ spaceship_git_status() {
     is_behind=true
   fi
 
-  # Show unpushed commits
-  # local current_git_status="$(git status 2> /dev/null)"
-  local branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
-  # local git_diff_origin="$(git --no-pager diff --stat origin/${branch} 2>/dev/null)"
-  # local git_unpushed_commit="$(git log ${branch} --not --remotes 2>/dev/null)"
-  # Making sure "推" is NOT displayed if i haven't committed yet
-  # but if I partically committed, still need to show "推"
-  # if [[ -n $git_unpushed_commit ]]; then
-  #   git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
-  # elif [[ $current_git_status =~ "working tree clean" ]]; then
-  #   if [[ -n $git_diff_origin ]] || \
-  #     [[ $current_git_status =~ "Your branch is ahead of 'origin/$branch'" ]]; then
-  #     git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
-  #   else
-  #     # do nothing
-  #   fi
-  # else
-  #   # do nothing
-  # fi
-
   # Check wheather branch has diverged
   if [[ "$is_ahead" == true && "$is_behind" == true ]]; then
     git_status="$SPACESHIP_GIT_STATUS_DIVERGED$git_status"
@@ -130,6 +110,7 @@ spaceship_git_status() {
   fi
 
   # Show remote ref name and number of commits ahead-of or behind
+  local branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
   local ahead behind remote
   local -a gitstatus
 
