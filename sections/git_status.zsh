@@ -19,6 +19,8 @@ SPACESHIP_GIT_STATUS_STASHED="${SPACESHIP_GIT_STATUS_STASHED="$"}"
 SPACESHIP_GIT_STATUS_UNMERGED="${SPACESHIP_GIT_STATUS_UNMERGED="="}"
 SPACESHIP_GIT_STATUS_AHEAD="${SPACESHIP_GIT_STATUS_AHEAD="⇡"}"
 SPACESHIP_GIT_STATUS_BEHIND="${SPACESHIP_GIT_STATUS_BEHIND="⇣"}"
+SPACESHIP_GIT_STATUS_PULL="${SPACESHIP_GIT_STATUS_PULL="⇡"}"
+SPACESHIP_GIT_STATUS_PUSH="${SPACESHIP_GIT_STATUS_PUSH="⇣"}"
 SPACESHIP_GIT_STATUS_DIVERGED="${SPACESHIP_GIT_STATUS_DIVERGED="⇕"}"
 
 # ------------------------------------------------------------------------------
@@ -104,8 +106,8 @@ spaceship_git_status() {
   if [[ "$is_ahead" == true && "$is_behind" == true ]]; then
     git_status="$SPACESHIP_GIT_STATUS_DIVERGED$git_status"
   else
-    [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
-    [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
+    [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_PUSH$git_status"
+    [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_PULL$git_status"
     # do nothing
   fi
 
@@ -123,10 +125,10 @@ spaceship_git_status() {
 
   if [[ -n ${remote} ]] ; then
     ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l)
-    (( $ahead )) && gitstatus+=( "(${c3}前+${ahead}${c2})" )
+    (( $ahead )) && gitstatus+=( "(${c3}$SPACESHIP_GIT_STATUS_AHEAD+${ahead}${c2})" )
 
     behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l)
-    (( $behind )) && gitstatus+=( "(${c4}後-${behind}${c2})" )
+    (( $behind )) && gitstatus+=( "(${c4}$SPACESHIP_GIT_STATUS_BEHIND-${behind}${c2})" )
 
     git_status="$git_status%F{172}${(j:/:)gitstatus}"
   fi
