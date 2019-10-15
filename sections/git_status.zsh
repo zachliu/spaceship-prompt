@@ -19,6 +19,8 @@ SPACESHIP_GIT_STATUS_STASHED="${SPACESHIP_GIT_STATUS_STASHED="$"}"
 SPACESHIP_GIT_STATUS_UNMERGED="${SPACESHIP_GIT_STATUS_UNMERGED="="}"
 SPACESHIP_GIT_STATUS_AHEAD="${SPACESHIP_GIT_STATUS_AHEAD="⇡"}"
 SPACESHIP_GIT_STATUS_BEHIND="${SPACESHIP_GIT_STATUS_BEHIND="⇣"}"
+SPACESHIP_GIT_STATUS_PULL="${SPACESHIP_GIT_STATUS_PULL="⇡"}"
+SPACESHIP_GIT_STATUS_PUSH="${SPACESHIP_GIT_STATUS_PUSH="⇣"}"
 SPACESHIP_GIT_STATUS_DIVERGED="${SPACESHIP_GIT_STATUS_DIVERGED="⇕"}"
 
 # ------------------------------------------------------------------------------
@@ -41,21 +43,20 @@ spaceship_git_status() {
 
   # Check for untracked files
   if $(echo "$INDEX" | command grep -E '^\?\? ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNTRACKED$git_status"
+    git_status="%F{red}$SPACESHIP_GIT_STATUS_UNTRACKED%f$git_status"
   fi
 
   # Check for staged files
-  if $(echo "$INDEX" | command grep '^A[ MDAU] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_ADDED$git_status"
-  elif $(echo "$INDEX" | command grep '^M[ MD] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_ADDED$git_status"
-  elif $(echo "$INDEX" | command grep '^UA' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_ADDED$git_status"
+  if \
+    $(echo "$INDEX" | command grep '^A[ MDAU] ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^M[ MD] ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^UA' &> /dev/null); then
+    git_status="%F{yellow}$SPACESHIP_GIT_STATUS_ADDED%f$git_status"
   fi
 
   # Check for modified files
   if $(echo "$INDEX" | command grep '^[ MARC]M ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_MODIFIED$git_status"
+    git_status="%F{red}$SPACESHIP_GIT_STATUS_MODIFIED%f$git_status"
   fi
 
   # Check for renamed files
@@ -64,31 +65,34 @@ spaceship_git_status() {
   fi
 
   # Check for deleted files
-  if $(echo "$INDEX" | command grep '^[MARCDU ]D ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_DELETED$git_status"
-  elif $(echo "$INDEX" | command grep '^D[ UM] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_DELETED$git_status"
+  if \
+    $(echo "$INDEX" | command grep '^[MARCDU ]D ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^D[ UM] ' &> /dev/null); then
+    git_status="%F{208}$SPACESHIP_GIT_STATUS_DELETED%f$git_status"
   fi
 
   # Check for stashes
   if $(command git rev-parse --verify refs/stash >/dev/null 2>&1); then
-    git_status="$SPACESHIP_GIT_STATUS_STASHED$git_status"
+    local -a stashes
+    stashes=$(git stash list 2>/dev/null | wc -l)
+    git_status="$git_status%F{red}($SPACESHIP_GIT_STATUS_STASHED${stashes})"
   fi
 
   # Check for unmerged files
-  if $(echo "$INDEX" | command grep '^U[UDA] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
-  elif $(echo "$INDEX" | command grep '^AA ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
-  elif $(echo "$INDEX" | command grep '^DD ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
-  elif $(echo "$INDEX" | command grep '^[DA]U ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_UNMERGED$git_status"
+  if \
+    $(echo "$INDEX" | command grep '^U[UDA] ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^AA ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^DD ' &> /dev/null) ||
+    $(echo "$INDEX" | command grep '^[DA]U ' &> /dev/null); then
+    git_status="$git_status%F{red}$SPACESHIP_GIT_STATUS_UNMERGED%f"
   fi
 
   # Check whether branch is ahead
   local is_ahead=false
-  if $(echo "$INDEX" | command grep '^## [^ ]\+ .*ahead' &> /dev/null); then
+  local unpushed_commit=$(command git log --branches --not --remotes 2>/dev/null)
+  if \
+    $(echo "$INDEX" | command grep '^## [^ ]\+ .*ahead' &> /dev/null) ||
+    [[ -n $unpushed_commit ]]; then
     is_ahead=true
   fi
 
@@ -102,8 +106,31 @@ spaceship_git_status() {
   if [[ "$is_ahead" == true && "$is_behind" == true ]]; then
     git_status="$SPACESHIP_GIT_STATUS_DIVERGED$git_status"
   else
-    [[ "$is_ahead" == true ]] && git_status="$SPACESHIP_GIT_STATUS_AHEAD$git_status"
-    [[ "$is_behind" == true ]] && git_status="$SPACESHIP_GIT_STATUS_BEHIND$git_status"
+    [[ "$is_ahead" == true ]] && git_status="%F{yellow}$SPACESHIP_GIT_STATUS_PUSH%f$git_status"
+    [[ "$is_behind" == true ]] && git_status="%F{yellow}$SPACESHIP_GIT_STATUS_PULL%f$git_status"
+    # do nothing
+  fi
+
+  # Show remote ref name and number of commits ahead-of or behind
+  local branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
+  local ahead behind remote
+  local -a gitstatus
+
+  # Are we ahead or behind a remote-tracking branch?
+  # One way to avoid having to explicitly do --set-upstream is to use the
+  # shorthand flag -u along with the very first git push as follows:
+  # $ git push -u origin local-branch
+  remote=${$(git rev-parse --verify ${branch}@{upstream} \
+    --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+
+  if [[ -n ${remote} ]]; then
+    ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l)
+    (( $ahead )) && gitstatus+=( "(${c3}$SPACESHIP_GIT_STATUS_AHEAD+${ahead}${c2})" )
+
+    behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l)
+    (( $behind )) && gitstatus+=( "(${c4}$SPACESHIP_GIT_STATUS_BEHIND-${behind}${c2})" )
+
+    git_status="$git_status%F{172}${(j:/:)gitstatus}"
   fi
 
   if [[ -n $git_status ]]; then

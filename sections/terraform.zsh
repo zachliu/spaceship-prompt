@@ -14,7 +14,7 @@
 SPACESHIP_TERRAFORM_SHOW="${SPACESHIP_TERRAFORM_SHOW=true}"
 SPACESHIP_TERRAFORM_PREFIX="${SPACESHIP_TERRAFORM_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"}"
 SPACESHIP_TERRAFORM_SUFFIX="${SPACESHIP_TERRAFORM_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"}"
-SPACESHIP_TERRAFORM_SYMBOL="${SPACESHIP_TERRAFORM_SYMBOL="🛠 "}"
+SPACESHIP_TERRAFORM_SYMBOL="${SPACESHIP_TERRAFORM_SYMBOL="🛠️  "}"
 SPACESHIP_TERRAFORM_COLOR="${SPACESHIP_TERRAFORM_COLOR="105"}"
 
 # ------------------------------------------------------------------------------
@@ -27,9 +27,9 @@ spaceship_terraform() {
   spaceship::exists terraform || return
 
   # Show Terraform Workspaces when exists
-  [[ -f .terraform/environment ]] || return
+  [[ -f .terraform-version ]] || return
 
-  local terraform_workspace=$(<.terraform/environment)
+  local terraform_workspace=$(<.terraform-version)
   [[ -z $terraform_workspace ]] && return
 
   spaceship::section \
