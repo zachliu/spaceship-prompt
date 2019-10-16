@@ -77,7 +77,7 @@ spaceship_git_status() {
   # Check for stashes
   if $(command git rev-parse --verify refs/stash >/dev/null 2>&1); then
     local -a stashes
-    stashes=$(git stash list 2>/dev/null | wc -l)
+    stashes=$(command git stash list 2>/dev/null | wc -l)
     git_status="$git_status%F{red}($SPACESHIP_GIT_STATUS_STASHED${stashes})"
   fi
 
@@ -122,14 +122,14 @@ spaceship_git_status() {
   # One way to avoid having to explicitly do --set-upstream is to use the
   # shorthand flag -u along with the very first git push as follows:
   # $ git push -u origin local-branch
-  remote=$(git rev-parse --verify ${git_current_branch}@{upstream} \
+  remote=$(command git rev-parse --verify ${git_current_branch}@{upstream} \
     --symbolic-full-name 2>/dev/null)
 
   if [[ -n ${remote} ]]; then
-    ahead=$(git rev-list ${git_current_branch}@{upstream}..HEAD 2>/dev/null | wc -l)
+    ahead=$(command git rev-list ${git_current_branch}@{upstream}..HEAD 2>/dev/null | wc -l)
     (( $ahead )) && gitstatus+=( "($SPACESHIP_GIT_STATUS_AHEAD+${ahead})" )
 
-    behind=$(git rev-list HEAD..${git_current_branch}@{upstream} 2>/dev/null | wc -l)
+    behind=$(command git rev-list HEAD..${git_current_branch}@{upstream} 2>/dev/null | wc -l)
     (( $behind )) && gitstatus+=( "($SPACESHIP_GIT_STATUS_BEHIND-${behind})" )
 
     git_status="$git_status%F{172}${(j:/:)gitstatus}"
