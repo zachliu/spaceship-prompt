@@ -61,17 +61,9 @@ spaceship_git_branch() {
   fi
 
   # Colors for the branch name
-  local git_current_status="$(git status 2> /dev/null)"
-  local git_current_commit="$(git --no-pager diff --stat origin/${git_current_branch} 2>/dev/null)"
-  if [[ $git_current_status == "" ]]; then
-    # SPACESHIP_GIT_BRANCH_COLOR="cyan"
-  elif [[ ! $git_current_status =~ "working tree clean" ]]; then
-    # do nothing
-  elif [[ $git_current_status =~ "Your branch is ahead of 'origin/$git_current_branch'" ]] || \
-    [[ -n $git_current_commit ]]; then
+  local git_unpushed_commit=$(command git log --branches --not --remotes 2>/dev/null)
+  if [[ -n $git_unpushed_commit ]]; then
     SPACESHIP_GIT_BRANCH_COLOR="yellow"
-  else
-    # do nothing
   fi
 
   git_current_branch="${git_current_branch#heads/}"
