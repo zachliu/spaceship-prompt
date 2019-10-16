@@ -35,6 +35,9 @@ SPACESHIP_GIT_STATUS_DIVERGED="${SPACESHIP_GIT_STATUS_DIVERGED="⇕"}"
 spaceship_git_status() {
   [[ $SPACESHIP_GIT_STATUS_SHOW == false ]] && return
 
+  VCS_NO_LEAD_SPACE="$(echo -e "${vcs_info_msg_0_}" | sed -e 's/^[[:space:]]*//')"
+  local git_current_branch="$VCS_NO_LEAD_SPACE"
+
   spaceship::is_git || return
 
   local INDEX git_status=""
@@ -112,7 +115,6 @@ spaceship_git_status() {
   fi
 
   # Show remote ref name and number of commits ahead-of or behind
-  local branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
   local ahead behind remote
   local -a gitstatus
 
@@ -120,15 +122,15 @@ spaceship_git_status() {
   # One way to avoid having to explicitly do --set-upstream is to use the
   # shorthand flag -u along with the very first git push as follows:
   # $ git push -u origin local-branch
-  remote=${$(git rev-parse --verify ${branch}@{upstream} \
-    --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+  remote=$(git rev-parse --verify ${git_current_branch}@{upstream} \
+    --symbolic-full-name 2>/dev/null)
 
   if [[ -n ${remote} ]]; then
-    ahead=$(git rev-list ${branch}@{upstream}..HEAD 2>/dev/null | wc -l)
-    (( $ahead )) && gitstatus+=( "(${c3}$SPACESHIP_GIT_STATUS_AHEAD+${ahead}${c2})" )
+    ahead=$(git rev-list ${git_current_branch}@{upstream}..HEAD 2>/dev/null | wc -l)
+    (( $ahead )) && gitstatus+=( "($SPACESHIP_GIT_STATUS_AHEAD+${ahead})" )
 
-    behind=$(git rev-list HEAD..${branch}@{upstream} 2>/dev/null | wc -l)
-    (( $behind )) && gitstatus+=( "(${c4}$SPACESHIP_GIT_STATUS_BEHIND-${behind}${c2})" )
+    behind=$(git rev-list HEAD..${git_current_branch}@{upstream} 2>/dev/null | wc -l)
+    (( $behind )) && gitstatus+=( "($SPACESHIP_GIT_STATUS_BEHIND-${behind})" )
 
     git_status="$git_status%F{172}${(j:/:)gitstatus}"
   fi
