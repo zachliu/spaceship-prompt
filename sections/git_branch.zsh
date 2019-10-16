@@ -61,7 +61,7 @@ spaceship_git_branch() {
   fi
 
   # Colors for the branch name
-  local git_unpushed_commit=$(command git log --branches --not --remotes 2>/dev/null)
+  local git_unpushed_commit=$(command git log origin/$git_current_branch..HEAD 2>/dev/null)
   if [[ -n $git_unpushed_commit ]]; then
     SPACESHIP_GIT_BRANCH_COLOR="yellow"
   fi
