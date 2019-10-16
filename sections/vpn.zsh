@@ -26,7 +26,7 @@ spaceship_vpn() {
 
   local STATUS vpn_status=""
 
-  STATUS=$(command nmcli c show --active | rg aws 2> /dev/null)
+  STATUS=$(command nmcli c show --active 2> /dev/null | rg aws)
 
   if [[ -n ${STATUS} ]]; then
     vpn_status=$SPACESHIP_VPN_SYMBOL
