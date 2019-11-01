@@ -11,7 +11,7 @@
 SPACESHIP_VPN_SHOW="${SPACESHIP_VPN_SHOW=true}"
 SPACESHIP_VPN_PREFIX="${SPACESHIP_VPN_PREFIX=""}"
 SPACESHIP_VPN_SUFFIX="${SPACESHIP_VPN_SUFFIX=""}"
-SPACESHIP_VPN_SYMBOL="${SPACESHIP_VPN_SYMBOL="🔒 "}"
+SPACESHIP_VPN_SYMBOL="${SPACESHIP_VPN_SYMBOL="🛡️  "}"
 
 # ------------------------------------------------------------------------------
 # Section
