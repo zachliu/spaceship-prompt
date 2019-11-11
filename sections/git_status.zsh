@@ -93,7 +93,7 @@ spaceship_git_status() {
   # Check whether branch is ahead
   local is_ahead=false
   # local unpushed_commit=$(command git log --branches --not --remotes 2>/dev/null)
-  local unpushed_commit=$(command git log origin/master..HEAD 2>/dev/null)
+  local unpushed_commit=$(command git log origin/${git_current_branch}..HEAD 2>/dev/null)
   if \
     $(echo "$INDEX" | command grep '^## [^ ]\+ .*ahead' &> /dev/null) ||
     [[ -n $unpushed_commit ]]; then
