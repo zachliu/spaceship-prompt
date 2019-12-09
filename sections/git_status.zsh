@@ -64,7 +64,7 @@ spaceship_git_status() {
 
   # Check for renamed files
   if $(echo "$INDEX" | command grep '^R[ MD] ' &> /dev/null); then
-    git_status="$SPACESHIP_GIT_STATUS_RENAMED$git_status"
+    git_status="%F{yellow}$SPACESHIP_GIT_STATUS_RENAMED%f$git_status"
   fi
 
   # Check for deleted files
